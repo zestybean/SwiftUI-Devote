@@ -13,6 +13,7 @@ struct ContentView: View {
     @State var task: String = ""
     @State private var showNewTaskItem: Bool = false
     
+    @AppStorage("isDarkMode") private var isDarkMode: Bool = false
     
     //FETCHING DATA
     @Environment(\.managedObjectContext) private var viewContext
@@ -43,6 +44,36 @@ struct ContentView: View {
                 //MARK: - MAIN VIEW
                 VStack {
                     //MARK: - HEADER
+                    HStack(spacing: 10) {
+                        //TITLE
+                        Text("Devote")
+                            .font(.system(.largeTitle, design: .rounded))
+                            .fontWeight(.heavy)
+                            .padding(.leading, 4)
+                        
+                        Spacer()
+                        
+                        //EDIT BUTTON
+                        EditButton()
+                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .padding(.horizontal, 10)
+                            .frame(minWidth: 70, minHeight: 24)
+                            .background(Capsule().stroke(Color.white, lineWidth: 2))
+                        
+                        //APPEARANCE
+                        Button(action: {
+                            //TOGGLE APPEARANCE
+                            isDarkMode.toggle()
+                        }, label: {
+                            Image(systemName: isDarkMode ? "moon.circle.fill" : "moon.circle")
+                                .resizable()
+                                .frame(width: 24, height: 24)
+                                .font(.system(.title, design: .rounded))
+                        })
+                        
+                    }//HSTACK
+                    .padding()
+                    .foregroundColor(.white)
                     Spacer(minLength: 80)
                     //MARK: - NEW TASK BUTTON
                     Button(action: {
@@ -60,31 +91,26 @@ struct ContentView: View {
                     .shadow(color: Color(red: 0, green: 0, blue: 0, opacity: 0.25), radius: 8, x: 0.0, y: 4.0)
                     
                     //MARK: - TASKS
-                    
-                    
-                    
                     List {
                         ForEach(items) { item in
-                            VStack(alignment: .leading) {
-                                Text(item.task ?? "")
-                                    .font(.headline)
-                                    .fontWeight(.bold)
-                                
-                                Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                                    .font(.footnote)
-                                    .foregroundColor(.gray)
-                            }//LISITEM
+                            ListRowItemView(item: item)
                         }
                         .onDelete(perform: deleteItems)
-                   }//LIST
+                    }//LIST
                     .listStyle(InsetGroupedListStyle())
                     .shadow(color: Color(red: 0, green: 0, blue: 0, opacity: 0.3), radius: 12)
                     .padding(.vertical, 0)
                     .frame(maxWidth: 640)
                 }//VSTACK
+                .blur(radius: showNewTaskItem ? 8.0 : 0, opaque: false)
+                .transition(.move(edge: .bottom))
+                .animation(.easeOut(duration: 0.5))
+                
                 //MARK: - NEW TASK ITEM
                 if showNewTaskItem {
-                    BlankView()
+                    BlankView(
+                        backgroundColor: isDarkMode ? Color.black : Color.gray,
+                        backgroundOpacity: isDarkMode ? 0.3 : 0.5)
                         .onTapGesture {
                             withAnimation(){
                                 showNewTaskItem = false
@@ -98,14 +124,12 @@ struct ContentView: View {
                 UITableView.appearance().backgroundColor = UIColor.clear
             }
             .navigationBarTitle("Daily Tasks", displayMode: .large)
-            .toolbar {
-                #if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                #endif
-            }//TOOL
-            .background(BackgroundImageView())
+            .navigationBarHidden(true)
+            
+            .background(
+                BackgroundImageView()
+                    .blur(radius: showNewTaskItem ? 8.0 : 0, opaque: false)
+            )
             .background(backgroundGradient.ignoresSafeArea(.all)
             )
         }//NAV

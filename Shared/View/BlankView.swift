@@ -10,13 +10,18 @@ import SwiftUI
 
 
 struct BlankView: View {
+    //MARK: - PROPS
+    var backgroundColor: Color
+    var backgroundOpacity: Double
+    
     var body: some View {
         VStack {
             Spacer()
         }
         .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .center)
-        .background(BlurView())
-        .opacity(0.5)
+        .background(backgroundColor)
+        .opacity(backgroundOpacity)
+        .blendMode(.overlay)
         .ignoresSafeArea(.all)
         
     }
@@ -24,6 +29,8 @@ struct BlankView: View {
 
 struct BlankView_Previews: PreviewProvider {
     static var previews: some View {
-        BlankView()
+        BlankView(backgroundColor: Color.black, backgroundOpacity: 0.3)
+            .background(BackgroundImageView())
+            .background(backgroundGradient.ignoresSafeArea(.all))
     }
 }
